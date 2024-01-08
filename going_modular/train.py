@@ -5,6 +5,7 @@ Trains a PyTorch image classification model using device-agnostic code.
 import os
 import torch
 import data_setup, engine, model_builder, utils
+from going_modular.utils import create_writer
 
 from torchvision import transforms
 
@@ -13,6 +14,8 @@ NUM_EPOCHS = 5
 BATCH_SIZE = 32
 HIDDEN_UNITS = 10
 LEARNING_RATE = 0.001
+DATALOADER_NAME = "data_10_percent"
+MODEL_NAME = "TinyVGG"
 
 # Setup directories
 train_dir = "data/pizza_steak_sushi/train"
@@ -43,6 +46,9 @@ model = model_builder.TinyVGG(
 loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
+# Define extra
+extra = f"{NUM_EPOCHS}_epochs-{BATCH_SIZE}_batch_size-{HIDDEN_UNITS}_hidden_units-{LEARNING_RATE}_learning_rate"
+
 # Start training with help from engine.py
 engine.train(
     model=model,
@@ -52,6 +58,11 @@ engine.train(
     optimizer=optimizer,
     epochs=NUM_EPOCHS,
     device=device,
+    writer=create_writer(
+        experiment_name=DATALOADER_NAME,
+        model_name=MODEL_NAME,
+        extra=extra,
+    ),
 )
 
 # Save the model with help from utils.py
